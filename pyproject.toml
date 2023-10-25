@@ -22,31 +22,35 @@ qi = "quantuminspire.cli.command_list:app"
 
 [tool.poetry.dependencies]
 python = "^3.8"
-typer = {extras = ["all"], version = "^0.6.1"}
+typer = {extras = ["all"], version = "^0.9.0"}
 qutechopenql = "^0.11.1"
-qi-compute-api-client = "^0.1.0"
+pydantic = "^1.10.9"
+qi-compute-api-client = {git = "https://github.com/QuTech-Delft/compute-api-client.git", branch = "0.2.0"}
+qxelarator = {version = "^0.6.2", optional = true}
 
-[tool.poetry.dev-dependencies]
-pytest = {extras = ["toml"], version = "^6.2.5"}
-pytest-cov = "^3.0.0"
-black = "^22.6.0"
-isort = "^5.10.1"
-pylint = "^2.15.10"
-coverage = {extras = ["toml"], version = "^6.4.1"}
-mypy = "^0.971"
-docformatter = "^1.4"
-pytest-mock = "^3.8.2"
+[tool.poetry.extras]
+local = ["qxelarator"]
 
 [tool.poetry.group.dev.dependencies]
+pytest = {extras = ["toml"], version = "^7.4.2"}
+pytest-cov = "^4.1.0"
+pylint = "^2.17.5"
+coverage = {extras = ["toml"], version = "^7.3.1"}
+mypy = "^1.5"
+docformatter = "1.7.5"
+pytest-mock = "^3.11.1"
 isort = "^5.11.4"
-black = "^22.12.0"
+black = "^23.9.1"
+pytest-asyncio = "^0.21.1"
 
 [tool.pytest.ini_options]
 addopts = "-v --cov --cov-report term-missing:skip-covered --cov-report xml"
+asyncio_mode = "auto"
+
 
 [tool.coverage.run]
 branch = true
-omit = ["tests/*"]
+omit = ["tests/*", "**/.tox/**"]
 
 [tool.coverage.report]
 show_missing = true
@@ -78,6 +82,12 @@ no_implicit_reexport = true
 strict_equality = true
 ignore_missing_imports = true
 show_error_codes = true
+plugins = [
+    "pydantic.mypy"
+]
+exclude = [
+    "examples/"
+]
 
 [tool.isort]
 profile = "black"
@@ -86,14 +96,18 @@ include_trailing_comma = true
 force_grid_wrap = 0
 line_length = 120
 
-[tool.docformatter]
-recursive = true
-wrap-summaries = 120
-wrap-descriptions = 120
-
-[tool.pylint.FORMAT]
-max-line-length = 120
+[tool.pylint]
+MASTER.extension-pkg-whitelist = "pydantic"
+FORMAT.max-line-length = 120
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.docformatter]
+recursive = true
+wrap-summaries = 119
+wrap-descriptions = 119
+
+[tool.pydantic-mypy]
+warn_untyped_fields = true

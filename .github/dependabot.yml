@@ -6,3 +6,10 @@ updates:
       interval: "daily"
     reviewers:
       - QuTech-Delft/web-team
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    reviewers:
+      - QuTech-Delft/web-team
+      

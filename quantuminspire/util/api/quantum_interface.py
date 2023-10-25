@@ -13,23 +13,28 @@ language governing permissions and limitations under the License.
 """
 
 from abc import ABC, abstractmethod
-from typing import Any
+from typing import Any, Dict, List
 
-from quantuminspire.sdk.models.base_algorithm import BaseAlgorithm
+from pydantic import BaseModel
 
 
-class BaseRuntime(ABC):
-    """Base interface for runtimes.
+class ExecuteCircuitResult(BaseModel):
+    """Result of executing a quantum circuit."""
 
-    A runtime will execute the hybrid algorithm, or quantum circuit provided.
-    """
+    results: Dict[str, float]
+    shots_requested: int
+    shots_done: int
+
+
+class QuantumInterface(ABC):
+    """Interface for running quantum circuits from hybrid algorithms."""
+
+    # pylint: disable = R0903
+    # Too few public methods (1/2) (too-few-public-methods)
+
+    results: List[Any]
 
     @abstractmethod
-    def run(self, program: BaseAlgorithm, runtime_type_id: int) -> int:
-        """Execute provided algorithm/circuit."""
-        raise NotImplementedError
-
-    @abstractmethod
-    def get_results(self, run_id: int) -> Any:
-        """Get results for algorithm/circuit."""
+    def execute_circuit(self, circuit: str, number_of_shots: int) -> ExecuteCircuitResult:
+        """Execute a quantum circuit."""
         raise NotImplementedError

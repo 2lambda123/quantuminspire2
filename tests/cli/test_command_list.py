@@ -1,6 +1,8 @@
 from typing import List
+from unittest.mock import MagicMock
 
 import pytest
+from pytest_mock import MockerFixture
 from typer.testing import CliRunner
 
 from quantuminspire.cli.command_list import app
@@ -48,6 +50,48 @@ runner = CliRunner()
 )
 def test_cli_calls(args: List[str], output: str) -> None:
     result = runner.invoke(app, args)
-    print(result.output)
     assert result.exit_code == 0
     assert output in result.stdout
+
+
+def test_file_upload(mocker: MockerFixture) -> None:
+    mock_remote_runtime_inst = MagicMock()
+    mocker.patch("quantuminspire.cli.command_list.RemoteRuntime", return_value=mock_remote_runtime_inst)
+    mocker.patch("quantuminspire.cli.command_list.Path")
+
+    result = runner.invoke(app, ["files", "upload", "hqca_circuit.py", "10"])
+
+    assert result.exit_code == 0
+    mock_remote_runtime_inst.run.assert_called_once()
+
+
+def test_file_run(mocker: MockerFixture) -> None:
+    mock_local_runtime_inst = MagicMock()
+    mocker.patch("quantuminspire.cli.command_list.LocalRuntime", return_value=mock_local_runtime_inst)
+    mocker.patch("quantuminspire.cli.command_list.Path")
+
+    result = runner.invoke(app, ["files", "run", "hqca_circuit.py"])
+
+    assert result.exit_code == 0
+    mock_local_runtime_inst.run.assert_called_once()
+
+
+def test_results_get(mocker: MockerFixture) -> None:
+    mock_remote_runtime_inst = MagicMock()
+    mocker.patch("quantuminspire.cli.command_list.RemoteRuntime", return_value=mock_remote_runtime_inst)
+
+    result = runner.invoke(app, ["results", "get", "1"])
+
+    assert result.exit_code == 0
+    mock_remote_runtime_inst.get_results.assert_called_once()
+
+
+def test_results_get_no_results(mocker: MockerFixture) -> None:
+    mock_remote_runtime_inst = MagicMock()
+    mock_remote_runtime_inst.get_results.return_value = None
+    mocker.patch("quantuminspire.cli.command_list.RemoteRuntime", return_value=mock_remote_runtime_inst)
+
+    result = runner.invoke(app, ["results", "get", "1"])
+
+    assert result.exit_code == 1
+    mock_remote_runtime_inst.get_results.assert_called_once()
